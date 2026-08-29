@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YouTube Player</title>
+<title>Video</title>
 <style>
 * {
     box-sizing: border-box;
@@ -11,32 +11,179 @@
 
 html, body {
     margin: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
+    min-height: 100%;
 }
 
 body {
+    min-height: 100vh;
+    padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
+    background:
+        linear-gradient(90deg, rgba(60,30,10,.18) 1px, transparent 1px),
+        linear-gradient(rgba(60,30,10,.12) 1px, transparent 1px),
+        linear-gradient(135deg, #9b6335, #c58a50 25%, #8b542d 50%, #b8753e 75%, #75431f);
+    background-size: 55px 55px, 90px 90px, 100% 100%;
+    font-family: Arial, sans-serif;
 }
 
-iframe {
-    width: 360px;
-    height: 640px;
+.ahsap {
+    width: min(100%, 500px);
+    padding: 18px;
+    border-radius: 22px;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,.08), transparent 30%, rgba(0,0,0,.12) 70%, transparent),
+        linear-gradient(135deg, #6f3d1d, #a96532 25%, #7b431f 50%, #b26d37 75%, #713b1b);
+    box-shadow:
+        0 15px 35px rgba(0,0,0,.45),
+        inset 0 1px 2px rgba(255,255,255,.25),
+        inset 0 -3px 8px rgba(0,0,0,.3);
+    border: 4px solid #512b15;
+}
+
+.baslik {
+    color: #f5dfbd;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 4px 0 16px;
+    text-shadow: 2px 2px 3px #321708;
+}
+
+.cerceve {
+    background: #29160b;
+    padding: 9px;
+    border-radius: 15px;
+    box-shadow:
+        inset 0 0 12px rgba(0,0,0,.9),
+        0 5px 12px rgba(0,0,0,.4);
+}
+
+.video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    border-radius: 9px;
+    background: #000;
+}
+
+.video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     border: 0;
+}
+
+.alt {
+    margin-top: 15px;
+    padding: 12px;
+    text-align: center;
+    color: #f3d7b0;
+    background: rgba(45,22,9,.55);
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.alt a {
+    color: #ffd28e;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+@media (max-width: 500px) {
+    body {
+        padding: 10px;
+    }
+
+    .ahsap {
+        padding: 12px;
+    }
+
+    .baslik {
+        font-size: 20px;
+    }
 }
 </style>
 </head>
 <body>
 
-<iframe
-    src="https://www.youtube.com/embed/29qtD2RJHNw"
-    title="YouTube"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    allowfullscreen>
-</iframe>
+<div class="ahsap">
+
+    <div class="baslik">🎬 Video</div>
+
+    <div class="cerceve">
+        <div class="video">
+            <iframe
+                id="youtube"
+                title="YouTube Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+
+    <div class="alt">
+        YouTube'da açmak için
+        <a id="youtubeLink" target="_blank">buraya dokun</a>
+    </div>
+
+</div>
+
+<script>
+const parametre = new URLSearchParams(window.location.search);
+const video = parametre.get("video");
+
+function videoIdBul(metin) {
+    if (!metin) return null;
+
+    if (/^[a-zA-Z0-9_-]{11}$/.test(metin)) {
+        return metin;
+    }
+
+    try {
+        const url = new URL(metin);
+
+        if (url.hostname.includes("youtu.be")) {
+            return url.pathname.substring(1).split("/")[0];
+        }
+
+        if (url.pathname.includes("/shorts/")) {
+            return url.pathname.split("/shorts/")[1].split("/")[0];
+        }
+
+        if (url.pathname.includes("/watch")) {
+            return url.searchParams.get("v");
+        }
+
+        if (url.pathname.includes("/embed/")) {
+            return url.pathname.split("/embed/")[1].split("/")[0];
+        }
+    } catch (e) {
+        return null;
+    }
+
+    return null;
+}
+
+const videoId = videoIdBul(video);
+
+if (videoId) {
+    document.getElementById("youtube").src =
+        "https://www.youtube.com/embed/" + videoId;
+
+    document.getElementById("youtubeLink").href =
+        "https://www.youtube.com/watch?v=" + videoId;
+} else {
+    document.getElementById("youtube").src =
+        "https://www.youtube.com/embed/29qtD2RJHNw";
+
+    document.getElementById("youtubeLink").href =
+        "https://www.youtube.com/watch?v=29qtD2RJHNw";
+}
+</script>
 
 </body>
 </html>
